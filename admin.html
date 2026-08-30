@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topper Stitching - Admin Panel</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f0f2f5; padding: 15px; }
+        .login-box { max-width: 350px; margin: 100px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        .login-box h3 { color: #1a237e; margin-bottom: 15px; }
+        .login-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; text-align: center; }
+        .login-box button { background: #0d47a1; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        
+        #adminDashboard { display: none; max-width: 600px; margin: auto; }
+        .header { background: #0d47a1; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
+        .order-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 13px; line-height: 1.5; }
+        .order-card h4 { color: #1a237e; margin-bottom: 6px; font-size: 16px; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 8px; }
+        .badge-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        .badge-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-failed { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .admin-action-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .admin-action-btns button { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-fail { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- पासवर्ड लॉगिन स्क्रीन -->
+    <div id="loginScreen" class="login-box">
+        <h3>🔐 ओनर लॉगिन (Admin Panel)</h3>
+        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">कृपया 4-अंकों का पिन दर्ज करें</p>
+        <input type="password" id="adminPin" placeholder="PIN दर्ज करें" maxlength="4">
+        <button onclick="verifyAdminPin()">लॉगिन करें</button>
+    </div>
+
+    <!-- असली एडमिन डैशबोर्ड -->
+    <div id="adminDashboard">
+        <div class="header">
+            <h2>📦 Topper Stitching Live Orders</h2>
+            <p style="font-size: 12px; margin-top: 4px;">ग्राहकों के सभी लाइव ऑर्डर यहाँ दिखेंगे</p>
+        </div>
+        <div id="liveOrdersContainer">
+            <p style="text-align: center; color: #666;">आर्डर लोड हो रहे हैं...</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDrsMo4f15JZxUk8LkNYqlYqfzEHOQ8Q4w",
+        authDomain: "toppersewingmachine.firebaseapp.com",
+        databaseURL: "https://toppersewingmachine-default-rtdb.firebaseio.com",
+        projectId: "toppersewingmachine",
+        storageBucket: "toppersewingmachine.firebasestorage.app",
+        messagingSenderId: "281176461879",
+        appId: "1:281176461879:web:97648170de01d8c975e5b2"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+
+      // पिन चेक करने का फंक्शन (पिन 4200 सेट किया गया है)
+      window.verifyAdminPin = function() {
+          var pin = document.getElementById('adminPin').value;
+          if (pin === "4200") {
+              document.getElementById('loginScreen').style.display = 'none';
+              document.getElementById('adminDashboard').style.display = 'block';
+              loadLiveOrders();
+          } else {
+              alert("गलत पिन! कृपया सही पिन दर्ज करें।");
+          }
+      };
+
+      // डेटाबेस से लाइव आर्डर लोड करना
+      function loadLiveOrders() {
+          const ordersRef = ref(db, 'orders');
+          onValue(ordersRef, (snapshot) => {
+              const data = snapshot.val();
+              const container = document.getElementById('liveOrdersContainer');
+              
+              if (!data) {
+                  container.innerHTML = "<p style='text-align:center; color:#777; margin-top: 20px;'>अभी कोई नया आर्डर नहीं है।</p>";
+                  return;
+              }
+
+              let html = "";
+              let ordersArray = Object.keys(data).map(key => ({ key: key, ...data[key] })).reverse();
+
+              ordersArray.forEach(ord => {
+                  let badgeClass = "badge-pending";
+                  if (ord.status && (ord.status.includes("Approved") || ord.status.includes("Successful"))) {
+                      badgeClass = "badge-success";
+                  } else if (ord.status && (ord.status.includes("Failed") || ord.status.includes("Rejected"))) {
+                      badgeClass = "badge-failed";
+                  }
+
+                  html += `<div class="order-card">
+                              <h4>${ord.product || "Product"}</h4>
+                              <div><b>कीमत:</b> ₹${ord.price || "0"}</div>
+                              <div><b>ग्राहक नाम:</b> ${ord.name || "N/A"}</div>
+                              <div><b>फोन नंबर:</b> ${ord.phone || "N/A"}</div>
+                              <div><b>पूरा पता:</b> ${ord.address || "N/A"}</div>
+                              <div><b>UTR No.:</b> ${ord.utr || "N/A"}</div>
+                              <div><b>ऑर्डर ID:</b> ${ord.id || ord.key}</div>
+                              <div><b>समय:</b> ${ord.orderDate || "N/A"}</div>
+                              <div style="margin-top: 6px;"><span class="badge ${badgeClass}">${ord.status || "Pending"}</span></div>`;
+
+                  if (ord.status && ord.status.includes("Pending")) {
+                      html += `<div class="admin-action-btns">
+                                  <button class="btn-success" onclick="updateOrderStatus('${ord.key}', 'Order Successful / Confirmed (Approved)')">✅ पास करें</button>
+                                  <button class="btn-fail" onclick="updateOrderStatus('${ord.key}', 'Order Failed / Rejected (Payment Not Received)')">❌ फेल करें</button>
+                              </div>`;
+                  }
+                  html += `</div>`;
+              });
+              container.innerHTML = html;
+          });
+      }
+
+      // आर्डर पास या फेल करने पर डेटाबेस अपडेट करना
+      window.updateOrderStatus = function(orderKey, newStatus) {
+          const orderRef = ref(db, 'orders/' + orderKey);
+          update(orderRef, { status: newStatus })
+              .then(() => {
+                  alert("आर्डर स्टेटस सफलतापूर्वक अपडेट हो गया!");
+              })
+              .catch((error) => {
+                  alert("त्रुटि: " + error.message);
+              });
+      };
+    </script>
+</body>
+</html>

@@ -289,12 +289,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 300;
             text-align: center;
             padding: 20px;
             box-sizing: border-box;
@@ -307,8 +307,8 @@
         
         <!-- Network Offline Modal -->
         <div id="networkModal" class="hidden">
-            <h2>Connection Failed</h2>
-            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Please check your internet connection.</p>
+            <h2 style="color: #ff5252;">Connection Failed</h2>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Please check your internet connection to play this game.</p>
             <button onclick="checkConnection()">Retry</button>
         </div>
 
@@ -403,36 +403,50 @@
         let timeLeft = 10;
         let timerInterval = null;
 
-        // Network Checker
-        window.addEventListener('online', updateNetworkStatus);
-        window.addEventListener('offline', updateNetworkStatus);
+        // App Launch & Network Check
+        window.addEventListener('DOMContentLoaded', () => {
+            verifyNetworkAndLoad();
+        });
 
-        function updateNetworkStatus() {
-            const modal = document.getElementById('networkModal');
+        window.addEventListener('online', () => {
+            document.getElementById('networkModal').classList.add('hidden');
+        });
+
+        window.addEventListener('offline', () => {
+            document.getElementById('networkModal').classList.remove('hidden');
+            clearInterval(timerInterval);
+        });
+
+        function verifyNetworkAndLoad() {
             if (!navigator.onLine) {
-                modal.classList.remove('hidden');
+                // अगर इंटरनेट नहीं है, तो तुरंत नेटवर्क एरर दिखाएं
+                document.getElementById('splashScreen').classList.add('hidden');
+                document.getElementById('networkModal').classList.remove('hidden');
             } else {
-                modal.classList.add('hidden');
+                // अगर इंटरनेट है, तो सामान्य रूप से गेम लोड करें
+                document.getElementById('networkModal').classList.add('hidden');
+                setTimeout(() => {
+                    document.getElementById('splashScreen').classList.add('hidden');
+                    document.getElementById('menuScreen').classList.remove('hidden');
+                }, 2000);
             }
         }
 
         function checkConnection() {
             if (navigator.onLine) {
                 document.getElementById('networkModal').classList.add('hidden');
+                location.reload(); // पेज रीफ्रेश करके गेम रिस्टार्ट करें
             } else {
-                alert("Still offline!");
+                alert("Still offline! Please connect to the internet.");
             }
         }
 
-        // App Launch Splash Timer (2 seconds delay)
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.getElementById('splashScreen').classList.add('hidden');
-                document.getElementById('menuScreen').classList.remove('hidden');
-            }, 2000);
-        });
-
         function startGame(mode) {
+            if (!navigator.onLine) {
+                document.getElementById('networkModal').classList.remove('hidden');
+                return;
+            }
+
             currentMode = mode;
             document.getElementById('menuScreen').classList.add('hidden');
             document.getElementById('gameContainer').classList.remove('hidden');
@@ -461,11 +475,13 @@
 
         // Timer Functions
         function startTimer() {
+            if (!navigator.onLine) return;
             clearInterval(timerInterval);
             timeLeft = 10;
             updateTimerDisplay();
 
             timerInterval = setInterval(() => {
+                if (!navigator.onLine) return;
                 timeLeft--;
                 updateTimerDisplay();
 
@@ -580,6 +596,10 @@
         }
 
         function flipCard(card, fruit) {
+            if (!navigator.onLine) {
+                document.getElementById('networkModal').classList.remove('hidden');
+                return;
+            }
             if (isLocked) return;
             if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
             if (flippedCards.length === 1 && flippedCards[0].element === card) return;

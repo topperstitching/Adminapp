@@ -54,15 +54,15 @@
             align-items: center;
             position: relative;
             overflow: hidden;
-            padding: 20px 10px;
+            padding: 15px 10px;
             box-sizing: border-box;
-            justify-content: center;
+            justify-content: space-between;
         }
 
         h1 {
-            margin: 15px 0 25px 0;
+            margin: 10px 0 15px 0;
             font-family: 'Fredoka One', cursive;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             color: #ffeb3b;
             text-shadow: 3px 3px 0px #ff9800, 5px 5px 10px rgba(0,0,0,0.5);
             transform: rotate(-3deg);
@@ -96,13 +96,12 @@
             100% { transform: rotate(360deg); }
         }
 
-        .menu, .game-info {
-            margin-bottom: 15px;
+        .menu {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
+            flex: 1;
             width: 100%;
         }
 
@@ -124,38 +123,88 @@
             transform: scale(1.05);
         }
 
-        /* Vertical Scoreboard (Player 1 top, Player 2 bottom) */
-        .scoreboard {
+        /* Ludo Style Player Box with Circular Timer */
+        .player-box {
             display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 1rem;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px 20px;
-            border-radius: 10px;
-            width: 70%;
-            text-align: center;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #444;
+            padding: 8px 15px;
+            border-radius: 12px;
+            width: 85%;
+            max-width: 320px;
+            transition: 0.3s;
         }
 
-        .active-turn {
-            background: rgba(0, 230, 118, 0.2);
-            border-left: 4px solid #00e676;
-            color: #00e676;
-            padding: 2px;
-            border-radius: 4px;
+        .player-box.active-turn {
+            border-color: #00e676;
+            background: rgba(0, 230, 118, 0.15);
+            box-shadow: 0 0 12px rgba(0, 230, 118, 0.4);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-avatar {
+            font-size: 1.5rem;
+            background: #222;
+            padding: 5px 10px;
+            border-radius: 50%;
+            border: 2px solid #555;
+        }
+
+        .player-details span {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .player-details small {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        /* Circular Timer UI */
+        .timer-circle {
+            position: relative;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: conic-gradient(#00e676 360deg, #333 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .timer-inner {
+            width: 30px;
+            height: 30px;
+            background: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #fff;
         }
 
         .grid-container {
             display: grid;
-            gap: 8px;
+            gap: 6px;
             max-width: 100%;
             justify-content: center;
+            margin: 5px 0;
         }
 
         .card {
             background-color: #ffffff;
             color: #000;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -175,11 +224,20 @@
         }
 
         #winMessage {
-            font-size: 1.3rem;
-            margin-top: 15px;
+            font-size: 1.2rem;
+            margin: 10px 0;
             color: #00e676;
             font-weight: bold;
             text-align: center;
+        }
+
+        /* Top Bar inside Game */
+        .game-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 90%;
+            margin-bottom: 5px;
         }
 
         /* Exit Custom Modal Popup */
@@ -281,17 +339,48 @@
             </div>
         </div>
 
-        <!-- Game Info & Vertical Scoreboard with Exit Button -->
-        <div class="game-info hidden" id="gameInfo">
-            <div class="scoreboard">
-                <div id="p1Score" class="active-turn">Player 1: 0</div>
-                <div id="p2Score">Player 2: 0</div>
+        <!-- In-Game Container (Hidden initially) -->
+        <div id="gameContainer" class="hidden" style="display: flex; flex-direction: column; align-items: center; width: 100%; flex: 1; justify-content: space-between;">
+            
+            <!-- Top Bar with Exit Button -->
+            <div class="game-top-bar">
+                <span style="font-size: 0.9rem; color: #ffeb3b; font-weight: bold;">Match the Fruits</span>
+                <button onclick="showExitModal()" style="padding: 5px 12px; font-size: 0.8rem; background: #e53935;">Exit</button>
             </div>
-            <button onclick="showExitModal()" style="padding: 8px 14px; font-size: 0.85rem; background: #e53935;">Exit</button>
-        </div>
 
-        <div class="grid-container" id="gridContainer"></div>
-        <div id="winMessage"></div>
+            <!-- Player 1 Box (Top) -->
+            <div id="player1Box" class="player-box active-turn">
+                <div class="player-info">
+                    <div class="player-avatar">👦</div>
+                    <div class="player-details">
+                        <span>Player 1</span>
+                        <small id="p1ScoreText">Score: 0</small>
+                    </div>
+                </div>
+                <div class="timer-circle" id="p1TimerCircle">
+                    <div class="timer-inner" id="p1Timer">10</div>
+                </div>
+            </div>
+
+            <!-- Game Grid -->
+            <div class="grid-container" id="gridContainer"></div>
+
+            <!-- Player 2 Box (Bottom) -->
+            <div id="player2Box" class="player-box">
+                <div class="player-info">
+                    <div class="player-avatar">👧</div>
+                    <div class="player-details">
+                        <span>Player 2</span>
+                        <small id="p2ScoreText">Score: 0</small>
+                    </div>
+                </div>
+                <div class="timer-circle" id="p2TimerCircle">
+                    <div class="timer-inner" id="p2Timer">10</div>
+                </div>
+            </div>
+
+            <div id="winMessage"></div>
+        </div>
 
     </div>
 
@@ -309,6 +398,9 @@
         let p2Score = 0;
         let currentPlayer = 1;
         let isLocked = false;
+
+        let timeLeft = 10;
+        let timerInterval = null;
 
         // Network Checker
         window.addEventListener('online', updateNetworkStatus);
@@ -342,7 +434,7 @@
         function startGame(mode) {
             currentMode = mode;
             document.getElementById('menuScreen').classList.add('hidden');
-            document.getElementById('gameInfo').classList.remove('hidden');
+            document.getElementById('gameContainer').classList.remove('hidden');
             document.getElementById('winMessage').innerText = '';
 
             p1Score = 0;
@@ -360,20 +452,91 @@
             }
 
             setupGrid();
+            startTimer();
+        }
+
+        // Timer Functions
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 10;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Clear any half-flipped cards if time runs out
+                    clearFlippedOnTimeout();
+                    // Switch Turn automatically
+                    switchTurn();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const p1TimerEl = document.getElementById('p1Timer');
+            const p2TimerEl = document.getElementById('p2Timer');
+            const p1Circle = document.getElementById('p1TimerCircle');
+            const p2Circle = document.getElementById('p2TimerCircle');
+
+            let degree = (timeLeft / 10) * 360;
+
+            if (currentPlayer === 1) {
+                p1TimerEl.innerText = timeLeft;
+                p1Circle.style.background = `conic-gradient(#00e676 ${degree}deg, #333 0deg)`;
+                p2TimerEl.innerText = "10";
+                p2Circle.style.background = `conic-gradient(#00e676 360deg, #333 0deg)`;
+            } else {
+                p2TimerEl.innerText = timeLeft;
+                p2Circle.style.background = `conic-gradient(#00e676 ${degree}deg, #333 0deg)`;
+                p1TimerEl.innerText = "10";
+                p1Circle.style.background = `conic-gradient(#00e676 360deg, #333 0deg)`;
+            }
+        }
+
+        function switchTurn() {
+            // If player selected only 1 card and time ran out, flip it back
+            if (flippedCards.length === 1) {
+                let singleCard = flippedCards[0].element;
+                singleCard.innerText = '';
+                singleCard.classList.remove('flipped');
+                flippedCards = [];
+            }
+
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+            updateScoreboard();
+            isLocked = false;
+            startTimer();
+        }
+
+        function clearFlippedOnTimeout() {
+            if (flippedCards.length === 1) {
+                let card = flippedCards[0].element;
+                card.innerText = '';
+                card.classList.remove('flipped');
+                flippedCards = [];
+            }
         }
 
         // Exit Modal Functions
         function showExitModal() {
+            clearInterval(timerInterval);
             document.getElementById('exitModal').classList.remove('hidden');
         }
 
         function closeExitModal() {
             document.getElementById('exitModal').classList.add('hidden');
+            if (!document.getElementById('gameContainer').classList.contains('hidden') && matchedPairs < totalPairs) {
+                startTimer();
+            }
         }
 
         function confirmExit() {
+            clearInterval(timerInterval);
             document.getElementById('exitModal').classList.add('hidden');
-            document.getElementById('gameInfo').classList.add('hidden');
+            document.getElementById('gameContainer').classList.add('hidden');
             document.getElementById('gridContainer').innerHTML = '';
             document.getElementById('winMessage').innerText = '';
             document.getElementById('menuScreen').classList.remove('hidden');
@@ -383,8 +546,8 @@
             const container = document.getElementById('gridContainer');
             container.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
             
-            const cardSizePx = boardSize === 4 ? '65px' : '32px';
-            const fontSizePx = boardSize === 4 ? '1.8rem' : '1rem';
+            const cardSizePx = boardSize === 4 ? '58px' : '28px';
+            const fontSizePx = boardSize === 4 ? '1.6rem' : '0.9rem';
 
             let selectedFruits = fruits.slice(0, totalPairs);
             let gameFruits = [...selectedFruits, ...selectedFruits];
@@ -422,6 +585,7 @@
 
         function checkMatch() {
             isLocked = true;
+            clearInterval(timerInterval); // Stop timer while evaluating match
             const [first, second] = flippedCards;
 
             if (first.fruit === second.fruit) {
@@ -437,6 +601,9 @@
 
                 if (matchedPairs === totalPairs) {
                     declareWinner();
+                } else {
+                    isLocked = false;
+                    startTimer(); // Restart timer for the same player if they matched successfully
                 }
             } else {
                 setTimeout(() => {
@@ -448,32 +615,34 @@
                     currentPlayer = currentPlayer === 1 ? 2 : 1;
                     updateScoreboard();
                     resetTurnState();
+                    isLocked = false;
+                    startTimer(); // Restart timer for next player
                 }, 900);
             }
         }
 
         function resetTurnState() {
             flippedCards = [];
-            isLocked = false;
         }
 
         function updateScoreboard() {
-            const p1El = document.getElementById('p1Score');
-            const p2El = document.getElementById('p2Score');
+            const p1Box = document.getElementById('player1Box');
+            const p2Box = document.getElementById('player2Box');
             
-            p1El.innerText = `Player 1: ${p1Score}`;
-            p2El.innerText = `Player 2: ${p2Score}`;
+            document.getElementById('p1ScoreText').innerText = `Score: ${p1Score}`;
+            document.getElementById('p2ScoreText').innerText = `Score: ${p2Score}`;
 
             if (currentPlayer === 1) {
-                p1El.classList.add('active-turn');
-                p2El.classList.remove('active-turn');
+                p1Box.classList.add('active-turn');
+                p2Box.classList.remove('active-turn');
             } else {
-                p2El.classList.add('active-turn');
-                p1El.classList.remove('active-turn');
+                p2Box.classList.add('active-turn');
+                p1Box.classList.remove('active-turn');
             }
         }
 
         function declareWinner() {
+            clearInterval(timerInterval);
             const msg = document.getElementById('winMessage');
             if (p1Score > p2Score) {
                 msg.innerText = "🎉 Player 1 Wins!";

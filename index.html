@@ -342,6 +342,11 @@
             }
         }
 
+        // Handle Redirect Result for Median.co / WebView Apps
+        auth.getRedirectResult().catch((error) => {
+            console.error("Redirect Error: ", error.message);
+        });
+
         // Auth State Observer
         auth.onAuthStateChanged((user) => {
             if (!navigator.onLine) {
@@ -366,14 +371,16 @@
             }
         });
 
+        // Using signInWithRedirect for robust WebView compatibility (Median.co)
         function loginWithGoogle() {
             if (!navigator.onLine) {
                 updateNetworkStatus();
                 return;
             }
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch((error) => {
+            auth.signInWithRedirect(provider).catch((error) => {
                 console.error("Login Error: ", error.message);
+                alert("Login Error: " + error.message);
             });
         }
 

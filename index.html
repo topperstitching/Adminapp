@@ -3,137 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Topper Stitching - Admin Panel</title>
+    <title>Fruit Remember</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-        body { background-color: #f0f2f5; padding: 15px; }
-        .login-box { max-width: 350px; margin: 100px auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
-        .login-box h3 { color: #1a237e; margin-bottom: 15px; }
-        .login-box input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; text-align: center; }
-        .login-box button { background: #0d47a1; color: white; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 15px; }
-        
-        #adminDashboard { display: none; max-width: 600px; margin: auto; }
-        .header { background: #0d47a1; color: white; padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 15px; }
-        .order-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); font-size: 13px; line-height: 1.5; }
-        .order-card h4 { color: #1a237e; margin-bottom: 6px; font-size: 16px; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-top: 8px; }
-        .badge-pending { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-        .badge-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .badge-failed { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .admin-action-btns { display: flex; gap: 8px; margin-top: 10px; }
-        .admin-action-btns button { flex: 1; padding: 8px; font-size: 12px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; }
-        .btn-success { background: #28a745; color: white; }
-        .btn-fail { background: #dc3545; color: white; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1d2671, #c33764);
+            color: #fff;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .menu, .game-info {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #ff9800;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #f57c00;
+            transform: scale(1.05);
+        }
+
+        .scoreboard {
+            display: flex;
+            gap: 20px;
+            font-size: 1.1rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px 15px;
+            border-radius: 10px;
+        }
+
+        .active-turn {
+            border-bottom: 3px solid #00e676;
+            color: #00e676;
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 10px;
+            max-width: 100%;
+            justify-content: center;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            user-select: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+            transform-style: preserve-3d;
+        }
+
+        .card.flipped, .card.matched {
+            background-color: #fff;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #winMessage {
+            font-size: 1.5rem;
+            margin-top: 15px;
+            color: #00e676;
+            font-weight: bold;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
 
-    <!-- पासवर्ड लॉगिन स्क्रीन -->
-    <div id="loginScreen" class="login-box">
-        <h3>🔐 ओनर लॉगिन (Admin Panel)</h3>
-        <p style="font-size: 12px; color: #666; margin-bottom: 10px;">कृपया 4-अंकों का पिन दर्ज करें</p>
-        <input type="password" id="adminPin" placeholder="PIN दर्ज करें" maxlength="4">
-        <button onclick="verifyAdminPin()">लॉगिन करें</button>
+    <h1>Fruit Remember</h1>
+
+    <div class="menu" id="menuScreen">
+        <button onclick="startGame('easy')">Easy (4x4)</button>
+        <button onclick="startGame('hard')">Hard (8x8)</button>
     </div>
 
-    <!-- असली एडमिन डैशबोर्ड -->
-    <div id="adminDashboard">
-        <div class="header">
-            <h2>📦 Topper Stitching Live Orders</h2>
-            <p style="font-size: 12px; margin-top: 4px;">ग्राहकों के सभी लाइव ऑर्डर यहाँ दिखेंगे</p>
+    <div class="game-info hidden" id="gameInfo">
+        <div class="scoreboard">
+            <div id="p1Score" class="active-turn">Player 1: 0</div>
+            <div id="p2Score">Player 2: 0</div>
         </div>
-        <div id="liveOrdersContainer">
-            <p style="text-align: center; color: #666;">आर्डर लोड हो रहे हैं...</p>
-        </div>
+        <button onclick="returnToMenu()">Menu</button>
     </div>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <div class="grid-container" id="gridContainer"></div>
+    <div id="winMessage"></div>
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyDrsMo4f15JZxUk8LkNYqlYqfzEHOQ8Q4w",
-        authDomain: "toppersewingmachine.firebaseapp.com",
-        databaseURL: "https://toppersewingmachine-default-rtdb.firebaseio.com",
-        projectId: "toppersewingmachine",
-        storageBucket: "toppersewingmachine.firebasestorage.app",
-        messagingSenderId: "281176461879",
-        appId: "1:281176461879:web:97648170de01d8c975e5b2"
-      };
+    <script>
+        const fruits = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑', '🥭', '🍋', '🍊', '🍐', '🍏', '🍈', '🥥', '🍅', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🍞'];
+        
+        let currentMode = 'easy';
+        let boardSize = 4; // 4x4
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let totalPairs = 8;
+        
+        let p1Score = 0;
+        let p2Score = 0;
+        let currentPlayer = 1; // 1 or 2
+        let isLocked = false;
 
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
+        function startGame(mode) {
+            currentMode = mode;
+            document.getElementById('menuScreen').classList.add('hidden');
+            document.getElementById('gameInfo').classList.remove('hidden');
+            document.getElementById('winMessage').innerText = '';
 
-      // पिन चेक करने का फंक्शन (पिन 4200 सेट किया गया है)
-      window.verifyAdminPin = function() {
-          var pin = document.getElementById('adminPin').value;
-          if (pin === "4200") {
-              document.getElementById('loginScreen').style.display = 'none';
-              document.getElementById('adminDashboard').style.display = 'block';
-              loadLiveOrders();
-          } else {
-              alert("गलत पिन! कृपया सही पिन दर्ज करें।");
-          }
-      };
+            p1Score = 0;
+            p2Score = 0;
+            currentPlayer = 1;
+            matchedPairs = 0;
+            updateScoreboard();
 
-      // डेटाबेस से लाइव आर्डर लोड करना
-      function loadLiveOrders() {
-          const ordersRef = ref(db, 'orders');
-          onValue(ordersRef, (snapshot) => {
-              const data = snapshot.val();
-              const container = document.getElementById('liveOrdersContainer');
-              
-              if (!data) {
-                  container.innerHTML = "<p style='text-align:center; color:#777; margin-top: 20px;'>अभी कोई नया आर्डर नहीं है।</p>";
-                  return;
-              }
+            if (mode === 'easy') {
+                boardSize = 4; // 16 cards (8 pairs)
+                totalPairs = 8;
+            } else {
+                boardSize = 8; // 64 cards (32 pairs)
+                totalPairs = 32;
+            }
 
-              let html = "";
-              let ordersArray = Object.keys(data).map(key => ({ key: key, ...data[key] })).reverse();
+            setupGrid();
+        }
 
-              ordersArray.forEach(ord => {
-                  let badgeClass = "badge-pending";
-                  if (ord.status && (ord.status.includes("Approved") || ord.status.includes("Successful"))) {
-                      badgeClass = "badge-success";
-                  } else if (ord.status && (ord.status.includes("Failed") || ord.status.includes("Rejected"))) {
-                      badgeClass = "badge-failed";
-                  }
+        function returnToMenu() {
+            document.getElementById('menuScreen').classList.remove('hidden');
+            document.getElementById('gameInfo').classList.add('hidden');
+            document.getElementById('gridContainer').innerHTML = '';
+            document.getElementById('winMessage').innerText = '';
+        }
 
-                  html += `<div class="order-card">
-                              <h4>${ord.product || "Product"}</h4>
-                              <div><b>कीमत:</b> ₹${ord.price || "0"}</div>
-                              <div><b>ग्राहक नाम:</b> ${ord.name || "N/A"}</div>
-                              <div><b>फोन नंबर:</b> ${ord.phone || "N/A"}</div>
-                              <div><b>पूरा पता:</b> ${ord.address || "N/A"}</div>
-                              <div><b>UTR No.:</b> ${ord.utr || "N/A"}</div>
-                              <div><b>ऑर्डर ID:</b> ${ord.id || ord.key}</div>
-                              <div><b>समय:</b> ${ord.orderDate || "N/A"}</div>
-                              <div style="margin-top: 6px;"><span class="badge ${badgeClass}">${ord.status || "Pending"}</span></div>`;
+        function setupGrid() {
+            const container = document.getElementById('gridContainer');
+            container.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
+            
+            // Card sizing style based on mode for mobile responsiveness
+            const cardSizePx = boardSize === 4 ? '70px' : '38px';
+            const fontSizePx = boardSize === 4 ? '2rem' : '1.2rem';
 
-                  if (ord.status && ord.status.includes("Pending")) {
-                      html += `<div class="admin-action-btns">
-                                  <button class="btn-success" onclick="updateOrderStatus('${ord.key}', 'Order Successful / Confirmed (Approved)')">✅ पास करें</button>
-                                  <button class="btn-fail" onclick="updateOrderStatus('${ord.key}', 'Order Failed / Rejected (Payment Not Received)')">❌ फेल करें</button>
-                              </div>`;
-                  }
-                  html += `</div>`;
-              });
-              container.innerHTML = html;
-          });
-      }
+            // Select required fruit pairs
+            let selectedFruits = fruits.slice(0, totalPairs);
+            let gameFruits = [...selectedFruits, ...selectedFruits];
+            
+            // Shuffle fruits
+            gameFruits.sort(() => Math.random() - 0.5);
 
-      // आर्डर पास या फेल करने पर डेटाबेस अपडेट करना
-      window.updateOrderStatus = function(orderKey, newStatus) {
-          const orderRef = ref(db, 'orders/' + orderKey);
-          update(orderRef, { status: newStatus })
-              .then(() => {
-                  alert("आर्डर स्टेटस सफलतापूर्वक अपडेट हो गया!");
-              })
-              .catch((error) => {
-                  alert("त्रुटि: " + error.message);
-              });
-      };
+            container.innerHTML = '';
+            cards = gameFruits.map((fruit, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.style.width = cardSizePx;
+                card.style.height = cardSizePx;
+                card.style.fontSize = fontSizePx;
+                card.dataset.fruit = fruit;
+                card.dataset.index = index;
+                
+                card.addEventListener('click', () => flipCard(card, fruit));
+                container.appendChild(card);
+                return card;
+            });
+        }
+
+        function flipCard(card, fruit) {
+            if (isLocked) return;
+            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            if (flippedCards.length === 1 && flippedCards[0].element === card) return;
+
+            card.innerText = fruit;
+            card.classList.add('flipped');
+            flippedCards.push({ element: card, fruit: fruit });
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isLocked = true;
+            const [first, second] = flippedCards;
+
+            if (first.fruit === second.fruit) {
+                first.element.classList.add('matched');
+                second.element.classList.add('matched');
+                matchedPairs++;
+
+                // Give point to current player
+                if (currentPlayer === 1) p1Score++;
+                else p2Score++;
+                updateScoreboard();
+
+                resetTurnState();
+
+                if (matchedPairs === totalPairs) {
+                    declareWinner();
+                }
+            } else {
+                // Not match: flip back after a short delay and switch player turn
+                setTimeout(() => {
+                    first.element.innerText = '';
+                    first.element.classList.remove('flipped');
+                    second.element.innerText = '';
+                    second.element.classList.remove('flipped');
+                    
+                    // Switch turn
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    updateScoreboard();
+                    resetTurnState();
+                }, 900);
+            }
+        }
+
+        function resetTurnState() {
+            flippedCards = [];
+            isLocked = false;
+        }
+
+        function updateScoreboard() {
+            const p1El = document.getElementById('p1Score');
+            const p2El = document.getElementById('p2Score');
+            
+            p1El.innerText = `Player 1: ${p1Score}`;
+            p2El.innerText = `Player 2: ${p2Score}`;
+
+            if (currentPlayer === 1) {
+                p1El.classList.add('active-turn');
+                p2El.classList.remove('active-turn');
+            } else {
+                p2El.classList.add('active-turn');
+                p1El.classList.remove('active-turn');
+            }
+        }
+
+        function declareWinner() {
+            const msg = document.getElementById('winMessage');
+            if (p1Score > p2Score) {
+                msg.innerText = "🎉 Player 1 Wins!";
+            } else if (p2Score > p1Score) {
+                msg.innerText = "🎉 Player 2 Wins!";
+            } else {
+                msg.innerText = "🤝 It's a Tie!";
+            }
+        }
     </script>
 </body>
 </html>

@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fruit Remember</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #1d2671, #c33764);
             color: #fff;
             margin: 0;
@@ -15,13 +21,119 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background Fruit Pattern Animation */
+        body::before {
+            content: "🍎 🍌 🍇 🍉 🍓 🍒 🍍 🥝 🍑 🥭 🍋 🍊";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 3rem;
+            opacity: 0.05;
+            z-index: -1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            overflow: hidden;
+            pointer-events: none;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .phone-frame {
+            background: #111;
+            border: 12px solid #333;
+            border-radius: 40px;
+            width: 100%;
+            max-width: 420px;
+            min-height: 85vh;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: 20px 10px;
+            box-sizing: border-box;
+        }
+
+        /* Top Bar Profile */
+        .top-bar {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 10px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .profile-container img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
         }
 
         h1 {
-            margin: 10px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            font-size: 1.8rem;
+            margin: 15px 0 25px 0;
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #ffeb3b;
+            text-shadow: 3px 3px 0px #ff9800, 5px 5px 10px rgba(0,0,0,0.5);
+            transform: rotate(-3deg);
             text-align: center;
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            width: 100%;
+            text-align: center;
+            gap: 20px;
+        }
+
+        .google-btn {
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: none;
+            transition: 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #f1f1f1;
+            transform: scale(1.05);
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
         }
 
         .menu, .game-info {
@@ -31,6 +143,7 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         button {
@@ -51,29 +164,37 @@
             transform: scale(1.05);
         }
 
+        /* Vertical Scoreboard (Player 1 top, Player 2 bottom) */
         .scoreboard {
             display: flex;
-            gap: 20px;
-            font-size: 1.1rem;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 15px;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
             border-radius: 10px;
+            width: 80%;
+            text-align: center;
         }
 
         .active-turn {
-            border-bottom: 3px solid #00e676;
+            background: rgba(0, 230, 118, 0.2);
+            border-left: 4px solid #00e676;
             color: #00e676;
+            padding: 2px;
+            border-radius: 4px;
         }
 
         .grid-container {
             display: grid;
-            gap: 10px;
+            gap: 8px;
             max-width: 100%;
             justify-content: center;
         }
 
         .card {
             background-color: #ffffff;
+            color: #000;
             border-radius: 8px;
             cursor: pointer;
             display: flex;
@@ -83,7 +204,6 @@
             user-select: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             transition: transform 0.3s;
-            transform-style: preserve-3d;
         }
 
         .card.flipped, .card.matched {
@@ -91,43 +211,106 @@
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
         #winMessage {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-top: 15px;
             color: #00e676;
             font-weight: bold;
             text-align: center;
         }
+
+        /* Network Modal Error */
+        #networkModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Fruit Remember</h1>
-
-    <div class="menu" id="menuScreen">
-        <button onclick="startGame('easy')">Easy (4x4)</button>
-        <button onclick="startGame('hard')">Hard (8x8)</button>
-    </div>
-
-    <div class="game-info hidden" id="gameInfo">
-        <div class="scoreboard">
-            <div id="p1Score" class="active-turn">Player 1: 0</div>
-            <div id="p2Score">Player 2: 0</div>
+    <div class="phone-frame">
+        
+        <!-- Top Bar with Profile -->
+        <div class="top-bar" id="topBar">
+            <div class="profile-container hidden" id="profileContainer">
+                <img id="userPic" src="" alt="Profile">
+                <span id="userName">User</span>
+            </div>
         </div>
-        <button onclick="returnToMenu()">Menu</button>
-    </div>
 
-    <div class="grid-container" id="gridContainer"></div>
-    <div id="winMessage"></div>
+        <h1>Fruit Remember</h1>
+
+        <!-- Network Offline Modal -->
+        <div id="networkModal" class="hidden">
+            <h2>Connection Failed</h2>
+            <p style="font-size: 0.9rem; color: #ccc; margin-bottom: 20px;">Please check your internet connection to continue playing.</p>
+            <button onclick="checkConnection()">Retry Connection</button>
+        </div>
+
+        <!-- Google Sign-In Screen -->
+        <div class="auth-screen" id="authScreen">
+            <p style="font-size: 0.95rem; color: #ddd;">Sign in with Google to play the game</p>
+            <button class="google-btn" onclick="loginWithGoogle()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+                Sign in with Google
+            </button>
+        </div>
+
+        <!-- Game Menu Screen -->
+        <div class="menu hidden" id="menuScreen">
+            <button onclick="startGame('easy')">Easy (4x4)</button>
+            <button onclick="startGame('hard')">Hard (8x8)</button>
+            <button onclick="logout()" style="background: #e53935; margin-top: 10px;">Logout</button>
+        </div>
+
+        <!-- Game Info & Vertical Scoreboard -->
+        <div class="game-info hidden" id="gameInfo">
+            <div class="scoreboard">
+                <div id="p1Score" class="active-turn">Player 1: 0</div>
+                <div id="p2Score">Player 2: 0</div>
+            </div>
+            <button onclick="returnToMenu()" style="padding: 6px 12px; font-size: 0.85rem;">Menu</button>
+        </div>
+
+        <div class="grid-container" id="gridContainer"></div>
+        <div id="winMessage"></div>
+
+    </div>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDrsMo4f15JZxUk8LkNYqlYqfzEHOQ8Q4w",
+          authDomain: "toppersewingmachine.firebaseapp.com",
+          projectId: "toppersewingmachine",
+          storageBucket: "toppersewingmachine.firebasestorage.app",
+          messagingSenderId: "281176461879",
+          appId: "1:281176461879:web:97648170de01d8c975e5b2",
+          measurementId: "G-GRP6EXGE3L"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
         const fruits = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑', '🥭', '🍋', '🍊', '🍐', '🍏', '🍈', '🥥', '🍅', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🍞'];
         
         let currentMode = 'easy';
-        let boardSize = 4; // 4x4
+        let boardSize = 4;
         let cards = [];
         let flippedCards = [];
         let matchedPairs = 0;
@@ -135,8 +318,68 @@
         
         let p1Score = 0;
         let p2Score = 0;
-        let currentPlayer = 1; // 1 or 2
+        let currentPlayer = 1;
         let isLocked = false;
+
+        // Network Checker
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+
+        function updateNetworkStatus() {
+            const modal = document.getElementById('networkModal');
+            if (!navigator.onLine) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function checkConnection() {
+            if (navigator.onLine) {
+                document.getElementById('networkModal').classList.add('hidden');
+            } else {
+                alert("Still offline! Check your network settings.");
+            }
+        }
+
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            if (!navigator.onLine) {
+                document.getElementById('networkModal').classList.remove('hidden');
+                return;
+            }
+
+            if (user) {
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('menuScreen').classList.remove('hidden');
+                document.getElementById('profileContainer').classList.remove('hidden');
+                
+                document.getElementById('userName').innerText = user.displayName || 'User';
+                document.getElementById('userPic').src = user.photoURL || 'https://via.placeholder.com/28';
+            } else {
+                document.getElementById('authScreen').classList.remove('hidden');
+                document.getElementById('menuScreen').classList.add('hidden');
+                document.getElementById('gameInfo').classList.add('hidden');
+                document.getElementById('profileContainer').classList.add('hidden');
+                document.getElementById('gridContainer').innerHTML = '';
+                document.getElementById('winMessage').innerText = '';
+            }
+        });
+
+        function loginWithGoogle() {
+            if (!navigator.onLine) {
+                updateNetworkStatus();
+                return;
+            }
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch((error) => {
+                console.error("Login Error: ", error.message);
+            });
+        }
+
+        function logout() {
+            auth.signOut();
+        }
 
         function startGame(mode) {
             currentMode = mode;
@@ -151,10 +394,10 @@
             updateScoreboard();
 
             if (mode === 'easy') {
-                boardSize = 4; // 16 cards (8 pairs)
+                boardSize = 4;
                 totalPairs = 8;
             } else {
-                boardSize = 8; // 64 cards (32 pairs)
+                boardSize = 8;
                 totalPairs = 32;
             }
 
@@ -172,15 +415,11 @@
             const container = document.getElementById('gridContainer');
             container.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
             
-            // Card sizing style based on mode for mobile responsiveness
-            const cardSizePx = boardSize === 4 ? '70px' : '38px';
-            const fontSizePx = boardSize === 4 ? '2rem' : '1.2rem';
+            const cardSizePx = boardSize === 4 ? '65px' : '32px';
+            const fontSizePx = boardSize === 4 ? '1.8rem' : '1rem';
 
-            // Select required fruit pairs
             let selectedFruits = fruits.slice(0, totalPairs);
             let gameFruits = [...selectedFruits, ...selectedFruits];
-            
-            // Shuffle fruits
             gameFruits.sort(() => Math.random() - 0.5);
 
             container.innerHTML = '';
@@ -222,7 +461,6 @@
                 second.element.classList.add('matched');
                 matchedPairs++;
 
-                // Give point to current player
                 if (currentPlayer === 1) p1Score++;
                 else p2Score++;
                 updateScoreboard();
@@ -233,14 +471,12 @@
                     declareWinner();
                 }
             } else {
-                // Not match: flip back after a short delay and switch player turn
                 setTimeout(() => {
                     first.element.innerText = '';
                     first.element.classList.remove('flipped');
                     second.element.innerText = '';
                     second.element.classList.remove('flipped');
                     
-                    // Switch turn
                     currentPlayer = currentPlayer === 1 ? 2 : 1;
                     updateScoreboard();
                     resetTurnState();

@@ -133,7 +133,7 @@
             background: rgba(0, 0, 0, 0.4);
             padding: 10px 20px;
             border-radius: 10px;
-            width: 80%;
+            width: 70%;
             text-align: center;
         }
 
@@ -182,6 +182,48 @@
             text-align: center;
         }
 
+        /* Exit Custom Modal Popup */
+        #exitModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-box {
+            background: #222;
+            border: 2px solid #444;
+            padding: 25px;
+            border-radius: 16px;
+            text-align: center;
+            width: 80%;
+            max-width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .modal-box p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .modal-buttons button {
+            padding: 8px 18px;
+            font-size: 1rem;
+        }
+
         /* Network Modal Error */
         #networkModal {
             position: absolute;
@@ -212,6 +254,17 @@
             <button onclick="checkConnection()">Retry</button>
         </div>
 
+        <!-- Exit Confirmation Modal -->
+        <div id="exitModal" class="hidden">
+            <div class="modal-box">
+                <p>Are sure to exit?</p>
+                <div class="modal-buttons">
+                    <button onclick="confirmExit()" style="background: #e53935;">OK</button>
+                    <button onclick="closeExitModal()" style="background: #555;">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Splash / Loading Screen -->
         <div class="splash-screen" id="splashScreen">
             <h1 style="font-size: 3rem;">Fruit Remember</h1>
@@ -219,7 +272,7 @@
             <div class="loader"></div>
         </div>
 
-        <!-- Game Menu Screen (Hidden initially, opens after splash) -->
+        <!-- Game Menu Screen -->
         <div class="menu hidden" id="menuScreen">
             <h1>Fruit Remember</h1>
             <div style="display: flex; flex-direction: column; gap: 15px; width: 80%; margin-top: 20px;">
@@ -228,13 +281,13 @@
             </div>
         </div>
 
-        <!-- Game Info & Vertical Scoreboard -->
+        <!-- Game Info & Vertical Scoreboard with Exit Button -->
         <div class="game-info hidden" id="gameInfo">
             <div class="scoreboard">
                 <div id="p1Score" class="active-turn">Player 1: 0</div>
                 <div id="p2Score">Player 2: 0</div>
             </div>
-            <button onclick="returnToMenu()" style="padding: 6px 12px; font-size: 0.85rem;">Menu</button>
+            <button onclick="showExitModal()" style="padding: 8px 14px; font-size: 0.85rem; background: #e53935;">Exit</button>
         </div>
 
         <div class="grid-container" id="gridContainer"></div>
@@ -278,12 +331,12 @@
             }
         }
 
-        // App Launch Splash Timer (2 seconds delay for cool loading effect)
+        // App Launch Splash Timer (2 seconds delay)
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('menuScreen').classList.remove('hidden');
-            }, 2000); // 2 seconds loading
+            }, 2000);
         });
 
         function startGame(mode) {
@@ -309,11 +362,21 @@
             setupGrid();
         }
 
-        function returnToMenu() {
-            document.getElementById('menuScreen').classList.remove('hidden');
+        // Exit Modal Functions
+        function showExitModal() {
+            document.getElementById('exitModal').classList.remove('hidden');
+        }
+
+        function closeExitModal() {
+            document.getElementById('exitModal').classList.add('hidden');
+        }
+
+        function confirmExit() {
+            document.getElementById('exitModal').classList.add('hidden');
             document.getElementById('gameInfo').classList.add('hidden');
             document.getElementById('gridContainer').innerHTML = '';
             document.getElementById('winMessage').innerText = '';
+            document.getElementById('menuScreen').classList.remove('hidden');
         }
 
         function setupGrid() {
@@ -423,4 +486,3 @@
     </script>
 </body>
 </html>
-

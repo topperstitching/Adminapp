@@ -333,8 +333,9 @@
         <!-- Game Menu Screen -->
         <div class="menu hidden" id="menuScreen">
             <h1>Fruit Remember</h1>
-            <div style="display: flex; flex-direction: column; gap: 15px; width: 80%; margin-top: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 80%; margin-top: 15px;">
                 <button onclick="startGame('easy')">Easy (4x4)</button>
+                <button onclick="startGame('medium')">Medium (6x6)</button>
                 <button onclick="startGame('hard')">Hard (8x8)</button>
             </div>
         </div>
@@ -368,7 +369,7 @@
             <!-- Player 2 Box (Bottom) -->
             <div id="player2Box" class="player-box">
                 <div class="player-info">
-                    <div class="player-avatar">👧</div>
+                    <div class="player-avatar">👦</div>
                     <div class="player-details">
                         <span>Player 2</span>
                         <small id="p2ScoreText">Score: 0</small>
@@ -446,6 +447,9 @@
             if (mode === 'easy') {
                 boardSize = 4;
                 totalPairs = 8;
+            } else if (mode === 'medium') {
+                boardSize = 6;
+                totalPairs = 18;
             } else {
                 boardSize = 8;
                 totalPairs = 32;
@@ -467,9 +471,7 @@
 
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
-                    // Clear any half-flipped cards if time runs out
                     clearFlippedOnTimeout();
-                    // Switch Turn automatically
                     switchTurn();
                 }
             }, 1000);
@@ -497,7 +499,6 @@
         }
 
         function switchTurn() {
-            // If player selected only 1 card and time ran out, flip it back
             if (flippedCards.length === 1) {
                 let singleCard = flippedCards[0].element;
                 singleCard.innerText = '';
@@ -546,8 +547,17 @@
             const container = document.getElementById('gridContainer');
             container.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
             
-            const cardSizePx = boardSize === 4 ? '58px' : '28px';
-            const fontSizePx = boardSize === 4 ? '1.6rem' : '0.9rem';
+            let cardSizePx, fontSizePx;
+            if (boardSize === 4) {
+                cardSizePx = '58px';
+                fontSizePx = '1.6rem';
+            } else if (boardSize === 6) {
+                cardSizePx = '38px';
+                fontSizePx = '1.2rem';
+            } else {
+                cardSizePx = '28px';
+                fontSizePx = '0.9rem';
+            }
 
             let selectedFruits = fruits.slice(0, totalPairs);
             let gameFruits = [...selectedFruits, ...selectedFruits];
@@ -585,7 +595,7 @@
 
         function checkMatch() {
             isLocked = true;
-            clearInterval(timerInterval); // Stop timer while evaluating match
+            clearInterval(timerInterval);
             const [first, second] = flippedCards;
 
             if (first.fruit === second.fruit) {
@@ -603,7 +613,7 @@
                     declareWinner();
                 } else {
                     isLocked = false;
-                    startTimer(); // Restart timer for the same player if they matched successfully
+                    startTimer();
                 }
             } else {
                 setTimeout(() => {
@@ -616,7 +626,7 @@
                     updateScoreboard();
                     resetTurnState();
                     isLocked = false;
-                    startTimer(); // Restart timer for next player
+                    startTimer();
                 }, 900);
             }
         }

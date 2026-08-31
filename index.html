@@ -342,7 +342,7 @@
             }
         }
 
-        // Handle Redirect Result for Median.co / WebView Apps
+        // Handle Redirect Result for App (Median.co)
         auth.getRedirectResult().catch((error) => {
             console.error("Redirect Error: ", error.message);
         });
@@ -371,17 +371,31 @@
             }
         });
 
-        // Using signInWithRedirect for robust WebView compatibility (Median.co)
+        // Check if running inside Median.co App
+        function isRunningInApp() {
+            return navigator.userAgent.indexOf('Median') !== -1 || window.navigator.standalone === true;
+        }
+
+        // Smart Login: Popup for Website, Redirect for App
         function loginWithGoogle() {
             if (!navigator.onLine) {
                 updateNetworkStatus();
                 return;
             }
             const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithRedirect(provider).catch((error) => {
-                console.error("Login Error: ", error.message);
-                alert("Login Error: " + error.message);
-            });
+
+            if (isRunningInApp()) {
+                // App ke liye Redirect
+                auth.signInWithRedirect(provider).catch((error) => {
+                    console.error("App Login Error: ", error.message);
+                    alert("App Login Error: " + error.message);
+                });
+            } else {
+                // Website ke liye Popup (ताकि वेबसाइट पर अटके नहीं)
+                auth.signInWithPopup(provider).catch((error) => {
+                    console.error("Web Login Error: ", error.message);
+                });
+            }
         }
 
         function logout() {
@@ -525,3 +539,4 @@
     </script>
 </body>
 </html>
+

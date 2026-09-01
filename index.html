@@ -72,8 +72,25 @@
 
         .menu {
             display: flex; flex-direction: column; align-items: center;
-            justify-content: center; flex: 1; width: 100%;
+            justify-content: center; flex: 1; width: 100%; position: relative;
         }
+
+        .user-profile-badge {
+            display: flex; align-items: center; gap: 10px;
+            background: rgba(255, 255, 255, 0.1); padding: 6px 14px;
+            border-radius: 25px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .user-profile-badge img {
+            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
+        }
+
+        .logout-btn {
+            background: transparent; border: 1px solid #ff5252; color: #ff5252;
+            padding: 3px 8px; font-size: 0.75rem; border-radius: 8px; margin-left: 5px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .logout-btn:hover { background: #ff5252; color: #fff; }
 
         button {
             padding: 12px 24px; font-size: 1.1rem; font-weight: 700;
@@ -153,6 +170,16 @@
             border-radius: 20px; text-align: center; width: 80%; max-width: 300px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
+
+        .custom-google-btn {
+            background: #ffffff; color: #333; border: none;
+            padding: 12px 20px; border-radius: 25px; font-weight: 600;
+            display: flex; align-items: center; gap: 10px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 0.95rem;
+            transition: transform 0.2s ease;
+        }
+        .custom-google-btn:hover { transform: scale(1.03); }
+        .custom-google-btn img { width: 20px; height: 20px; }
     </style>
 </head>
 <body>
@@ -179,37 +206,34 @@
             </div>
         </div>
 
-        <!-- Google Sign-In Only Screen -->
+        <!-- Google Sign-In Screen -->
         <div class="splash-screen" id="splashScreen">
             <h1 class="game-title">Fruit Remember</h1>
             
             <div class="login-card">
                 <p style="margin: 0; font-size: 1rem; color: #fff; font-weight: 600;">Sign in with Google to Play</p>
                 
-                <!-- Google One-Tap Config (Updated Client ID) -->
-                <div id="g_id_onload"
-                     data-client_id="29865168586-s626phpp4tjakdhkn61kv13geue89toa.apps.googleusercontent.com"
-                     data-context="signin"
-                     data-ux_mode="popup"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="true">
-                </div>
+                <button class="custom-google-btn" onclick="triggerGoogleLogin()">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                    Sign in with Google
+                </button>
 
-                <!-- Google Sign-In Button -->
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-shape="pill"
-                     data-theme="filled_blue"
-                     data-text="signin_with"
-                     data-size="large">
-                </div>
+                <div id="googleButtonHidden" style="display: none;"></div>
             </div>
         </div>
 
         <!-- Game Menu Screen -->
         <div class="menu hidden" id="menuScreen">
             <h1 class="game-title">Fruit Remember</h1>
-            <div style="display: flex; flex-direction: column; gap: 12px; width: 80%; margin-top: 15px;">
+            
+            <!-- Profile Info Header on Menu -->
+            <div class="user-profile-badge" id="menuProfileBadge">
+                <img id="menuAvatar" src="" alt="Profile">
+                <span id="menuName" style="font-size: 0.9rem; font-weight: 600;">Player</span>
+                <button class="logout-btn" onclick="logoutUser()">Logout</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 80%; margin-top: 5px;">
                 <button onclick="startGame('easy')">Easy (4x4)</button>
                 <button onclick="startGame('medium')">Medium (6x6)</button>
                 <button onclick="startGame('hard')">Hard (8x8)</button>
@@ -261,6 +285,7 @@
     </div>
 
     <script>
+        const CLIENT_ID = "29865168586-s626phpp4tjakdhkn61kv13geue89toa.apps.googleusercontent.com";
         const fruits = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑', '🥭', '🍋', '🍊', '🍐', '🍏', '🍈', '🥥', '🍅', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🍞'];
         
         let currentMode = 'easy';
@@ -278,19 +303,86 @@
         let timeLeft = 10;
         let timerInterval = null;
 
-        // Google Sign-In Callback
+        // Load saved user on start
+        window.onload = function() {
+            const savedUser = localStorage.getItem('fruit_game_user');
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                applyUserData(user);
+                showMenuScreen();
+            } else if (typeof google !== 'undefined') {
+                initGoogleAuth();
+            }
+        };
+
+        function initGoogleAuth() {
+            google.accounts.id.initialize({
+                client_id: CLIENT_ID,
+                callback: handleCredentialResponse,
+                auto_prompt: true,
+                ux_mode: 'popup'
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("googleButtonHidden"),
+                { theme: "outline", size: "large" }
+            );
+
+            google.accounts.id.prompt();
+        }
+
+        function triggerGoogleLogin() {
+            if (typeof google !== 'undefined') {
+                google.accounts.id.prompt((notification) => {
+                    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                        const hiddenBtn = document.getElementById("googleButtonHidden").querySelector('div[role="button"]');
+                        if (hiddenBtn) hiddenBtn.click();
+                    }
+                });
+            }
+        }
+
+        // Handle Sign-In & Save to LocalStorage
         function handleCredentialResponse(response) {
             const responsePayload = parseJwt(response.credential);
+            const user = {
+                name: responsePayload.given_name || responsePayload.name,
+                picture: responsePayload.picture || ''
+            };
+
+            // Save user profile in browser storage
+            localStorage.setItem('fruit_game_user', JSON.stringify(user));
             
-            document.getElementById('p1Name').innerText = responsePayload.given_name || responsePayload.name;
+            applyUserData(user);
+            showMenuScreen();
+        }
+
+        function applyUserData(user) {
+            // Set for Game Board Player 1
+            document.getElementById('p1Name').innerText = user.name;
             const p1Avatar = document.getElementById('p1Avatar');
             
-            if (responsePayload.picture) {
-                p1Avatar.innerHTML = `<img src="${responsePayload.picture}" style="width:100%; height:100%; object-fit:cover;">`;
-            }
+            // Set for Menu Screen Profile
+            document.getElementById('menuName').innerText = user.name;
+            const menuAvatar = document.getElementById('menuAvatar');
 
+            if (user.picture) {
+                p1Avatar.innerHTML = `<img src="${user.picture}" style="width:100%; height:100%; object-fit:cover;">`;
+                menuAvatar.src = user.picture;
+            } else {
+                p1Avatar.innerText = "👦";
+                menuAvatar.style.display = "none";
+            }
+        }
+
+        function showMenuScreen() {
             document.getElementById('splashScreen').classList.add('hidden');
             document.getElementById('menuScreen').classList.remove('hidden');
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('fruit_game_user');
+            location.reload(); // Page Refresh करके लॉगिन स्क्रीन दिखाएगा
         }
 
         function parseJwt(token) {

@@ -27,41 +27,24 @@
         body::before {
             content: "🍎 🍌 🍇 🍉 🍓 🍒 🍍 🥝 🍑 🥭 🍋 🍊";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            font-size: 3rem;
-            opacity: 0.05;
-            z-index: -1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 40px;
-            overflow: hidden;
-            pointer-events: none;
-            justify-content: center;
-            align-content: center;
+            top: 0; left: 0; width: 100%; height: 100%;
+            font-size: 3rem; opacity: 0.05; z-index: -1;
+            display: flex; flex-wrap: wrap; gap: 40px;
+            overflow: hidden; pointer-events: none;
+            justify-content: center; align-content: center;
         }
 
         .phone-frame {
             background: rgba(18, 18, 18, 0.95);
             border: 10px solid #2a2a2a;
             border-radius: 40px;
-            width: 100%;
-            max-width: 420px;
-            min-height: 85vh;
+            width: 100%; max-width: 420px; min-height: 85vh;
             box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 230, 118, 0.2);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            padding: 20px 12px;
-            box-sizing: border-box;
-            justify-content: space-between;
+            display: flex; flex-direction: column; align-items: center;
+            position: relative; overflow: hidden; padding: 20px 12px;
+            box-sizing: border-box; justify-content: space-between;
         }
 
-        /* Decorative Game Title */
         .game-title {
             margin: 5px 0 15px 0;
             font-family: 'Fredoka One', cursive;
@@ -70,208 +53,104 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.8));
-            transform: rotate(-2deg);
-            text-align: center;
-            letter-spacing: 1px;
+            transform: rotate(-2deg); text-align: center; letter-spacing: 1px;
         }
 
-        /* Splash & Login Container */
         .splash-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            width: 100%;
-            text-align: center;
-            gap: 15px;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; flex: 1; width: 100%; text-align: center; gap: 15px;
         }
 
         .login-card {
             background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 20px;
-            border-radius: 20px;
-            width: 85%;
+            padding: 25px 20px; border-radius: 20px; width: 85%;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
         }
 
         .menu {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            width: 100%;
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; flex: 1; width: 100%;
         }
 
         button {
-            padding: 12px 24px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
+            padding: 12px 24px; font-size: 1.1rem; font-weight: 700;
+            border: none; border-radius: 15px; cursor: pointer;
             background: linear-gradient(45deg, #ff9800, #f57c00);
-            color: white;
-            box-shadow: 0 5px 15px rgba(245, 124, 0, 0.4);
+            color: white; box-shadow: 0 5px 15px rgba(245, 124, 0, 0.4);
             transition: all 0.2s ease-in-out;
         }
 
-        button:hover {
-            transform: translateY(-2deg) scale(1.03);
-            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.6);
-        }
+        button:hover { transform: translateY(-2deg) scale(1.03); }
 
-        /* Enhanced Player Boxes */
         .player-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(30, 30, 30, 0.7);
-            border: 2px solid #333;
-            padding: 8px 15px;
-            border-radius: 16px;
-            width: 88%;
-            max-width: 320px;
-            transition: 0.3s;
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(30, 30, 30, 0.7); border: 2px solid #333;
+            padding: 8px 15px; border-radius: 16px; width: 88%; max-width: 320px; transition: 0.3s;
         }
 
         .player-box.active-turn {
-            border-color: #00e676;
-            background: rgba(0, 230, 118, 0.12);
+            border-color: #00e676; background: rgba(0, 230, 118, 0.12);
             box-shadow: 0 0 15px rgba(0, 230, 118, 0.3);
         }
 
-        .player-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .player-info { display: flex; align-items: center; gap: 12px; }
 
         .player-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            border: 2px solid #ffeb3b;
-            object-fit: cover;
-            background: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 2px solid #ffeb3b; object-fit: cover; background: #222;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            overflow: hidden;
         }
 
-        .player-details span {
-            display: block;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
+        .player-details span { display: block; font-size: 0.95rem; font-weight: 600; }
+        .player-details small { font-size: 0.75rem; color: #ffeb3b; }
 
-        .player-details small {
-            font-size: 0.75rem;
-            color: #ffeb3b;
-        }
-
-        /* Circular Timer UI */
         .timer-circle {
-            position: relative;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
+            position: relative; width: 38px; height: 38px; border-radius: 50%;
             background: conic-gradient(#00e676 360deg, #333 0deg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
 
         .timer-inner {
-            width: 30px;
-            height: 30px;
-            background: #111;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: #fff;
+            width: 30px; height: 30px; background: #111; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; font-weight: bold; color: #fff;
         }
 
         .grid-container {
-            display: grid;
-            gap: 6px;
-            max-width: 100%;
-            justify-content: center;
-            margin: 5px 0;
+            display: grid; gap: 6px; max-width: 100%; justify-content: center; margin: 5px 0;
         }
 
         .card {
-            background-color: #ffffff;
-            color: #000;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            user-select: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            background-color: #ffffff; color: #000; border-radius: 8px;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; user-select: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             transition: transform 0.2s ease-in-out;
         }
 
-        .card.flipped, .card.matched {
-            background-color: #fff;
-        }
-
-        .hidden {
-            display: none !important;
-        }
+        .card.flipped, .card.matched { background-color: #fff; }
+        .hidden { display: none !important; }
 
         #winMessage {
-            font-size: 1.2rem;
-            margin: 10px 0;
-            color: #00e676;
-            font-weight: bold;
-            text-align: center;
+            font-size: 1.2rem; margin: 10px 0; color: #00e676; font-weight: bold; text-align: center;
         }
 
         .game-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            margin-bottom: 5px;
+            display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 5px;
         }
 
-        /* Modals */
         #exitModal, #networkModal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 200;
         }
 
         .modal-box {
-            background: #1e1e1e;
-            border: 2px solid #333;
-            padding: 25px;
-            border-radius: 20px;
-            text-align: center;
-            width: 80%;
-            max-width: 300px;
+            background: #1e1e1e; border: 2px solid #333; padding: 25px;
+            border-radius: 20px; text-align: center; width: 80%; max-width: 300px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
         }
     </style>
@@ -300,12 +179,12 @@
             </div>
         </div>
 
-        <!-- Splash & Google Sign-In Screen -->
+        <!-- Google Sign-In Only Screen -->
         <div class="splash-screen" id="splashScreen">
             <h1 class="game-title">Fruit Remember</h1>
             
             <div class="login-card">
-                <p style="margin: 0; font-size: 0.95rem; color: #ddd;">Sign in to save your game</p>
+                <p style="margin: 0; font-size: 1rem; color: #fff; font-weight: 600;">Sign in with Google to Play</p>
                 
                 <!-- Google One-Tap Config -->
                 <div id="g_id_onload"
@@ -316,7 +195,7 @@
                      data-auto_prompt="true">
                 </div>
 
-                <!-- Google Button -->
+                <!-- Google Sign-In Button -->
                 <div class="g_id_signin"
                      data-type="standard"
                      data-shape="pill"
@@ -324,8 +203,6 @@
                      data-text="signin_with"
                      data-size="large">
                 </div>
-
-                <button onclick="skipLogin()" style="background: transparent; border: 1px solid #777; font-size: 0.85rem; padding: 6px 16px; margin-top: 5px;">Play as Guest</button>
             </div>
         </div>
 
@@ -401,19 +278,17 @@
         let timeLeft = 10;
         let timerInterval = null;
 
-        // Google Sign-In Callback Logic
+        // Google Sign-In Callback
         function handleCredentialResponse(response) {
             const responsePayload = parseJwt(response.credential);
             
-            // Set Player Name & Photo
             document.getElementById('p1Name').innerText = responsePayload.given_name || responsePayload.name;
             const p1Avatar = document.getElementById('p1Avatar');
             
             if (responsePayload.picture) {
-                p1Avatar.innerHTML = `<img src="${responsePayload.picture}" style="width:100%; height:100%; border-radius:50%;">`;
+                p1Avatar.innerHTML = `<img src="${responsePayload.picture}" style="width:100%; height:100%; object-fit:cover;">`;
             }
 
-            // Move to Menu Screen
             document.getElementById('splashScreen').classList.add('hidden');
             document.getElementById('menuScreen').classList.remove('hidden');
         }
@@ -427,12 +302,6 @@
             return JSON.parse(jsonPayload);
         }
 
-        function skipLogin() {
-            document.getElementById('splashScreen').classList.add('hidden');
-            document.getElementById('menuScreen').classList.remove('hidden');
-        }
-
-        // App & Network Controls
         window.addEventListener('online', () => document.getElementById('networkModal').classList.add('hidden'));
         window.addEventListener('offline', () => {
             document.getElementById('networkModal').classList.remove('hidden');

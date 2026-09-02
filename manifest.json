@@ -1,0 +1,15 @@
+{
+  "name": "Fruit Remember",
+  "short_name": "FruitGame",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f2027",
+  "theme_color": "#ff9800",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3174/3174883.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

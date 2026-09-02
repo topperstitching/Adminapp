@@ -1,595 +1,242 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Remember</title>
-    
-    <!-- Google AdSense Code -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3711405849292009"
-         crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Fruit Remember</title>
+  
+  <!-- AdSense Script (बिना अप्रूवल के शांत रहेगा) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1051939103390028" crossorigin="anonymous"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #fff;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "🍎 🍌 🍇 🍉 🍓 🍒 🍍 🥝 🍑 🥭 🍋 🍊";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            font-size: 3rem; opacity: 0.05; z-index: -1;
-            display: flex; flex-wrap: wrap; gap: 40px;
-            overflow: hidden; pointer-events: none;
-            justify-content: center; align-content: center;
-        }
-
-        .phone-frame {
-            background: rgba(18, 18, 18, 0.95);
-            border: 10px solid #2a2a2a;
-            border-radius: 40px;
-            width: 100%; max-width: 420px; min-height: 85vh;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 230, 118, 0.2);
-            display: flex; flex-direction: column; align-items: center;
-            position: relative; overflow: hidden; padding: 20px 12px;
-            box-sizing: border-box; justify-content: space-between;
-        }
-
-        .game-title {
-            margin: 5px 0 15px 0;
-            font-family: 'Fredoka One', cursive;
-            font-size: 2.6rem;
-            background: linear-gradient(45deg, #ffeb3b, #ff9800, #ff5722);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(3px 3px 0px rgba(0,0,0,0.8));
-            transform: rotate(-2deg); text-align: center; letter-spacing: 1px;
-        }
-
-        .splash-screen {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; flex: 1; width: 100%; text-align: center; gap: 15px;
-        }
-
-        .login-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 25px 20px; border-radius: 20px; width: 85%;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-        }
-
-        .menu {
-            display: flex; flex-direction: column; align-items: center;
-            justify-content: center; flex: 1; width: 100%; position: relative;
-        }
-
-        .user-profile-badge {
-            display: flex; align-items: center; gap: 10px;
-            background: rgba(255, 255, 255, 0.1); padding: 6px 14px;
-            border-radius: 25px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .user-profile-badge img {
-            width: 30px; height: 30px; border-radius: 50%; object-fit: cover;
-        }
-
-        .logout-btn {
-            background: transparent; border: 1px solid #ff5252; color: #ff5252;
-            padding: 3px 8px; font-size: 0.75rem; border-radius: 8px; margin-left: 5px;
-            cursor: pointer; transition: 0.2s;
-        }
-        .logout-btn:hover { background: #ff5252; color: #fff; }
-
-        button {
-            padding: 12px 24px; font-size: 1.1rem; font-weight: 700;
-            border: none; border-radius: 15px; cursor: pointer;
-            background: linear-gradient(45deg, #ff9800, #f57c00);
-            color: white; box-shadow: 0 5px 15px rgba(245, 124, 0, 0.4);
-            transition: all 0.2s ease-in-out;
-        }
-
-        button:hover { transform: translateY(-2deg) scale(1.03); }
-
-        .player-box {
-            display: flex; align-items: center; justify-content: space-between;
-            background: rgba(30, 30, 30, 0.7); border: 2px solid #333;
-            padding: 8px 15px; border-radius: 16px; width: 88%; max-width: 320px; transition: 0.3s;
-        }
-
-        .player-box.active-turn {
-            border-color: #00e676; background: rgba(0, 230, 118, 0.12);
-            box-shadow: 0 0 15px rgba(0, 230, 118, 0.3);
-        }
-
-        .player-info { display: flex; align-items: center; gap: 12px; }
-
-        .player-avatar {
-            width: 38px; height: 38px; border-radius: 50%;
-            border: 2px solid #ffeb3b; object-fit: cover; background: #222;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-            overflow: hidden;
-        }
-
-        .player-details span { display: block; font-size: 0.95rem; font-weight: 600; }
-        .player-details small { font-size: 0.75rem; color: #ffeb3b; }
-
-        .timer-circle {
-            position: relative; width: 38px; height: 38px; border-radius: 50%;
-            background: conic-gradient(#00e676 360deg, #333 0deg);
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .timer-inner {
-            width: 30px; height: 30px; background: #111; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; font-weight: bold; color: #fff;
-        }
-
-        .grid-container {
-            display: grid; gap: 6px; max-width: 100%; justify-content: center; margin: 5px 0;
-        }
-
-        .card {
-            background-color: #ffffff; color: #000; border-radius: 8px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; user-select: none; box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .card.flipped, .card.matched { background-color: #fff; }
-        .hidden { display: none !important; }
-
-        #winMessage {
-            font-size: 1.2rem; margin: 10px 0; color: #00e676; font-weight: bold; text-align: center;
-        }
-
-        .game-top-bar {
-            display: flex; justify-content: space-between; align-items: center; width: 90%; margin-bottom: 5px;
-        }
-
-        #exitModal, #networkModal {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center; z-index: 200;
-        }
-
-        .modal-box {
-            background: #1e1e1e; border: 2px solid #333; padding: 25px;
-            border-radius: 20px; text-align: center; width: 80%; max-width: 300px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-        }
-
-        .custom-google-btn {
-            background: #ffffff; color: #333; border: none;
-            padding: 12px 20px; border-radius: 25px; font-weight: 600;
-            display: flex; align-items: center; gap: 10px; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 0.95rem;
-            transition: transform 0.2s ease;
-        }
-        .custom-google-btn:hover { transform: scale(1.03); }
-        .custom-google-btn img { width: 20px; height: 20px; }
-    </style>
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74b9ff, #a29bfe);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    #game-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+    }
+    h1 {
+      font-size: 24px;
+      color: #6c5ce7;
+      margin-bottom: 10px;
+    }
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      background: #ffeaa7;
+      padding: 8px;
+      border-radius: 10px;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .card {
+      background: #74b9ff;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .card.flipped {
+      background: #fff;
+      transform: rotateY(180deg);
+    }
+    .card.matched {
+      background: #55efc4;
+      cursor: default;
+    }
+    button {
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(108, 92, 231, 0.4);
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #5649c0;
+    }
+    /* Offline Modal */
+    #offline-modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 300px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="phone-frame">
-        
-        <!-- Offline Modal -->
-        <div id="networkModal" class="hidden">
-            <div class="modal-box">
-                <h2 style="color: #ff5252; margin-top:0;">Connection Failed</h2>
-                <p style="font-size: 0.9rem; color: #ccc;">Please check your internet connection to play.</p>
-                <button onclick="checkConnection()">Retry</button>
-            </div>
-        </div>
-
-        <!-- Exit Modal -->
-        <div id="exitModal" class="hidden">
-            <div class="modal-box">
-                <p style="font-size: 1.1rem; margin-bottom: 20px;">Are you sure you want to exit?</p>
-                <div style="display:flex; justify-content:center; gap:15px;">
-                    <button onclick="confirmExit()" style="background: #e53935;">OK</button>
-                    <button onclick="closeExitModal()" style="background: #555;">Cancel</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Google Sign-In Screen -->
-        <div class="splash-screen" id="splashScreen">
-            <h1 class="game-title">Fruit Remember</h1>
-            
-            <div class="login-card">
-                <p style="margin: 0; font-size: 1rem; color: #fff; font-weight: 600;">Sign in with Google to Play</p>
-                
-                <button class="custom-google-btn" onclick="loginWithGoogleRedirect()">
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                    Sign in with Google
-                </button>
-            </div>
-        </div>
-
-        <!-- Game Menu Screen -->
-        <div class="menu hidden" id="menuScreen">
-            <h1 class="game-title">Fruit Remember</h1>
-            
-            <!-- Profile Info Header on Menu -->
-            <div class="user-profile-badge" id="menuProfileBadge">
-                <img id="menuAvatar" src="" alt="Profile">
-                <span id="menuName" style="font-size: 0.9rem; font-weight: 600;">Player</span>
-                <button class="logout-btn" onclick="logoutUser()">Logout</button>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 12px; width: 80%; margin-top: 5px;">
-                <button onclick="startGame('easy')">Easy (4x4)</button>
-                <button onclick="startGame('medium')">Medium (6x6)</button>
-                <button onclick="startGame('hard')">Hard (8x8)</button>
-            </div>
-        </div>
-
-        <!-- Game Board Container -->
-        <div id="gameContainer" class="hidden" style="display: flex; flex-direction: column; align-items: center; width: 100%; flex: 1; justify-content: space-between;">
-            
-            <div class="game-top-bar">
-                <span style="font-size: 0.9rem; color: #ffeb3b; font-weight: bold;">Match the Fruits</span>
-                <button onclick="showExitModal()" style="padding: 5px 12px; font-size: 0.8rem; background: #e53935;">Exit</button>
-            </div>
-
-            <!-- Player 1 Box -->
-            <div id="player1Box" class="player-box active-turn">
-                <div class="player-info">
-                    <div id="p1Avatar" class="player-avatar">👦</div>
-                    <div class="player-details">
-                        <span id="p1Name">Player 1</span>
-                        <small id="p1ScoreText">Score: 0</small>
-                    </div>
-                </div>
-                <div class="timer-circle" id="p1TimerCircle">
-                    <div class="timer-inner" id="p1Timer">10</div>
-                </div>
-            </div>
-
-            <!-- Grid -->
-            <div class="grid-container" id="gridContainer"></div>
-
-            <!-- Player 2 Box -->
-            <div id="player2Box" class="player-box">
-                <div class="player-info">
-                    <div class="player-avatar">🤖</div>
-                    <div class="player-details">
-                        <span>Player 2</span>
-                        <small id="p2ScoreText">Score: 0</small>
-                    </div>
-                </div>
-                <div class="timer-circle" id="p2TimerCircle">
-                    <div class="timer-inner" id="p2Timer">10</div>
-                </div>
-            </div>
-
-            <div id="winMessage"></div>
-        </div>
-
+  <div id="game-container">
+    <h1>🍉 Fruit Remember 🍇</h1>
+    <div class="stats-bar">
+      <div>Score: <span id="score">0</span></div>
+      <div>Moves: <span id="moves">0</span></div>
     </div>
+    
+    <div id="grid"></div>
+    
+    <button onclick="restartGame()">Restart Game</button>
+  </div>
 
-    <script>
-        const CLIENT_ID = "281176461879-m4evqumqf0kfmme5bmghs3kmov6kjbbu.apps.googleusercontent.com";
-        const fruits = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑', '🥭', '🍋', '🍊', '🍐', '🍏', '🍈', '🥥', '🍅', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🍞'];
-        
-        let currentMode = 'easy';
-        let boardSize = 4;
-        let cards = [];
-        let flippedCards = [];
-        let matchedPairs = 0;
-        let totalPairs = 8;
-        
-        let p1Score = 0;
-        let p2Score = 0;
-        let currentPlayer = 1;
-        let isLocked = false;
+  <!-- Offline Notice Modal -->
+  <div id="offline-modal">
+    <div class="modal-content">
+      <h2>⚠️ Internet Disconnected</h2>
+      <p style="margin: 10px 0;">Please connect to the internet to continue playing.</p>
+    </div>
+  </div>
 
-        let timeLeft = 10;
-        let timerInterval = null;
+  <script>
+    const fruits = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍓', '🥑', '🍍'];
+    let cardsArray = [...fruits, ...fruits];
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let score = 0;
+    let moves = 0;
 
-        // Load saved user on start or check Redirect Token
-        window.onload = function() {
-            const savedUser = localStorage.getItem('fruit_game_user');
-            
-            // Check if returned from Google OAuth
-            const hash = window.location.hash;
-            if (hash && hash.includes('access_token')) {
-                const params = new URLSearchParams(hash.replace('#', '?'));
-                const accessToken = params.get('access_token');
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
 
-                if (accessToken) {
-                    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                        headers: { Authorization: `Bearer ${accessToken}` }
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        const user = {
-                            name: data.given_name || data.name,
-                            picture: data.picture || ''
-                        };
-                        localStorage.setItem('fruit_game_user', JSON.stringify(user));
-                        window.history.replaceState({}, document.title, window.location.pathname);
-                        applyUserData(user);
-                        showMenuScreen();
-                    });
-                    return;
-                }
-            }
+    function createBoard() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const shuffledCards = shuffle(cardsArray);
+      
+      shuffledCards.forEach((fruit) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.fruit = fruit;
+        card.innerText = '❓';
+        card.addEventListener('click', flipCard);
+        grid.appendChild(card);
+      });
+    }
 
-            if (savedUser) {
-                const user = JSON.parse(savedUser);
-                applyUserData(user);
-                showMenuScreen();
-            }
-        };
+    function flipCard() {
+      if (lockBoard) return;
+      if (this === firstCard) return;
 
-        // Redirect Google Login Function
-        function loginWithGoogleRedirect() {
-            const redirect_uri = window.location.origin + window.location.pathname;
-            const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
-                `client_id=${CLIENT_ID}&` +
-                `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
-                `response_type=token&` +
-                `scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')}&` +
-                `prompt=select_account`;
+      this.classList.add('flipped');
+      this.innerText = this.dataset.fruit;
 
-            window.location.href = googleAuthUrl;
-        }
+      if (!firstCard) {
+        firstCard = this;
+        return;
+      }
 
-        function applyUserData(user) {
-            document.getElementById('p1Name').innerText = user.name;
-            const p1Avatar = document.getElementById('p1Avatar');
-            document.getElementById('menuName').innerText = user.name;
-            const menuAvatar = document.getElementById('menuAvatar');
+      secondCard = this;
+      moves++;
+      document.getElementById('moves').innerText = moves;
+      checkForMatch();
+    }
 
-            if (user.picture) {
-                p1Avatar.innerHTML = `<img src="${user.picture}" style="width:100%; height:100%; object-fit:cover;">`;
-                menuAvatar.src = user.picture;
-            } else {
-                p1Avatar.innerText = "👦";
-                menuAvatar.style.display = "none";
-            }
-        }
+    function checkForMatch() {
+      let isMatch = firstCard.dataset.fruit === secondCard.dataset.fruit;
+      isMatch ? disableCards() : unflipCards();
+    }
 
-        function showMenuScreen() {
-            document.getElementById('splashScreen').classList.add('hidden');
-            document.getElementById('menuScreen').classList.remove('hidden');
-        }
+    function disableCards() {
+      firstCard.classList.add('matched');
+      secondCard.classList.add('matched');
+      score += 10;
+      document.getElementById('score').innerText = score;
+      resetBoard();
 
-        function logoutUser() {
-            localStorage.removeItem('fruit_game_user');
-            location.reload();
-        }
+      if (document.querySelectorAll('.matched').length === cardsArray.length) {
+        setTimeout(() => alert(`🎉 Congratulations! You won in ${moves} moves!`), 300);
+      }
+    }
 
-        window.addEventListener('online', () => document.getElementById('networkModal').classList.add('hidden'));
-        window.addEventListener('offline', () => {
-            document.getElementById('networkModal').classList.remove('hidden');
-            clearInterval(timerInterval);
-        });
+    function unflipCards() {
+      lockBoard = true;
+      setTimeout(() => {
+        firstCard.classList.remove('flipped');
+        secondCard.classList.remove('flipped');
+        firstCard.innerText = '❓';
+        secondCard.innerText = '❓';
+        resetBoard();
+      }, 800);
+    }
 
-        function checkConnection() {
-            if (navigator.onLine) location.reload();
-            else alert("Still offline!");
-        }
+    function resetBoard() {
+      [firstCard, secondCard] = [null, null];
+      [lockBoard] = [false];
+    }
 
-        function startGame(mode) {
-            if (!navigator.onLine) {
-                document.getElementById('networkModal').classList.remove('hidden');
-                return;
-            }
+    function restartGame() {
+      score = 0;
+      moves = 0;
+      document.getElementById('score').innerText = score;
+      document.getElementById('moves').innerText = moves;
+      resetBoard();
+      createBoard();
+    }
 
-            currentMode = mode;
-            document.getElementById('menuScreen').classList.add('hidden');
-            document.getElementById('gameContainer').classList.remove('hidden');
-            document.getElementById('winMessage').innerText = '';
+    // Internet Status Monitoring
+    window.addEventListener('offline', () => {
+      document.getElementById('offline-modal').style.display = 'flex';
+    });
 
-            p1Score = 0;
-            p2Score = 0;
-            currentPlayer = 1;
-            matchedPairs = 0;
-            updateScoreboard();
+    window.addEventListener('online', () => {
+      document.getElementById('offline-modal').style.display = 'none';
+    });
 
-            if (mode === 'easy') { boardSize = 4; totalPairs = 8; }
-            else if (mode === 'medium') { boardSize = 6; totalPairs = 18; }
-            else { boardSize = 8; totalPairs = 32; }
+    if (!navigator.onLine) {
+      document.getElementById('offline-modal').style.display = 'flex';
+    }
 
-            setupGrid();
-            startTimer();
-        }
-
-        function startTimer() {
-            if (!navigator.onLine) return;
-            clearInterval(timerInterval);
-            timeLeft = 10;
-            updateTimerDisplay();
-
-            timerInterval = setInterval(() => {
-                if (!navigator.onLine) return;
-                timeLeft--;
-                updateTimerDisplay();
-
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    clearFlippedOnTimeout();
-                    switchTurn();
-                }
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const p1TimerEl = document.getElementById('p1Timer');
-            const p2TimerEl = document.getElementById('p2Timer');
-            const p1Circle = document.getElementById('p1TimerCircle');
-            const p2Circle = document.getElementById('p2TimerCircle');
-
-            let degree = (timeLeft / 10) * 360;
-
-            if (currentPlayer === 1) {
-                p1TimerEl.innerText = timeLeft;
-                p1Circle.style.background = `conic-gradient(#00e676 ${degree}deg, #333 0deg)`;
-                p2TimerEl.innerText = "10";
-                p2Circle.style.background = `conic-gradient(#00e676 360deg, #333 0deg)`;
-            } else {
-                p2TimerEl.innerText = timeLeft;
-                p2Circle.style.background = `conic-gradient(#00e676 360deg, #333 0deg)`;
-                p1TimerEl.innerText = "10";
-                p1Circle.style.background = `conic-gradient(#00e676 360deg, #333 0deg)`;
-            }
-        }
-
-        function switchTurn() {
-            clearFlippedOnTimeout();
-            currentPlayer = currentPlayer === 1 ? 2 : 1;
-            updateScoreboard();
-            isLocked = false;
-            startTimer();
-        }
-
-        function clearFlippedOnTimeout() {
-            if (flippedCards.length === 1) {
-                let card = flippedCards[0].element;
-                card.innerText = '';
-                card.classList.remove('flipped');
-                flippedCards = [];
-            }
-        }
-
-        function showExitModal() {
-            clearInterval(timerInterval);
-            document.getElementById('exitModal').classList.remove('hidden');
-        }
-
-        function closeExitModal() {
-            document.getElementById('exitModal').classList.add('hidden');
-            if (!document.getElementById('gameContainer').classList.contains('hidden') && matchedPairs < totalPairs) {
-                startTimer();
-            }
-        }
-
-        function confirmExit() {
-            clearInterval(timerInterval);
-            document.getElementById('exitModal').classList.add('hidden');
-            document.getElementById('gameContainer').classList.add('hidden');
-            document.getElementById('gridContainer').innerHTML = '';
-            document.getElementById('winMessage').innerText = '';
-            document.getElementById('menuScreen').classList.remove('hidden');
-        }
-
-        function setupGrid() {
-            const container = document.getElementById('gridContainer');
-            container.style.gridTemplateColumns = `repeat(${boardSize}, 1fr)`;
-            
-            let cardSizePx, fontSizePx;
-            if (boardSize === 4) { cardSizePx = '58px'; fontSizePx = '1.6rem'; }
-            else if (boardSize === 6) { cardSizePx = '38px'; fontSizePx = '1.2rem'; }
-            else { cardSizePx = '28px'; fontSizePx = '0.9rem'; }
-
-            let selectedFruits = fruits.slice(0, totalPairs);
-            let gameFruits = [...selectedFruits, ...selectedFruits];
-            gameFruits.sort(() => Math.random() - 0.5);
-
-            container.innerHTML = '';
-            cards = gameFruits.map((fruit, index) => {
-                const card = document.createElement('div');
-                card.classList.add('card');
-                card.style.width = cardSizePx;
-                card.style.height = cardSizePx;
-                card.style.fontSize = fontSizePx;
-                
-                card.addEventListener('click', () => flipCard(card, fruit));
-                container.appendChild(card);
-                return card;
-            });
-        }
-
-        function flipCard(card, fruit) {
-            if (!navigator.onLine) {
-                document.getElementById('networkModal').classList.remove('hidden');
-                return;
-            }
-            if (isLocked) return;
-            if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
-
-            card.innerText = fruit;
-            card.classList.add('flipped');
-            flippedCards.push({ element: card, fruit: fruit });
-
-            if (flippedCards.length === 2) checkMatch();
-        }
-
-        function checkMatch() {
-            isLocked = true;
-            clearInterval(timerInterval);
-            const [first, second] = flippedCards;
-
-            if (first.fruit === second.fruit) {
-                first.element.classList.add('matched');
-                second.element.classList.add('matched');
-                matchedPairs++;
-
-                if (currentPlayer === 1) p1Score++;
-                else p2Score++;
-                updateScoreboard();
-
-                flippedCards = [];
-
-                if (matchedPairs === totalPairs) declareWinner();
-                else { isLocked = false; startTimer(); }
-            } else {
-                setTimeout(() => {
-                    first.element.innerText = '';
-                    first.element.classList.remove('flipped');
-                    second.element.innerText = '';
-                    second.element.classList.remove('flipped');
-                    
-                    currentPlayer = currentPlayer === 1 ? 2 : 1;
-                    updateScoreboard();
-                    flippedCards = [];
-                    isLocked = false;
-                    startTimer();
-                }, 900);
-            }
-        }
-
-        function updateScoreboard() {
-            const p1Box = document.getElementById('player1Box');
-            const p2Box = document.getElementById('player2Box');
-            
-            document.getElementById('p1ScoreText').innerText = `Score: ${p1Score}`;
-            document.getElementById('p2ScoreText').innerText = `Score: ${p2Score}`;
-
-            if (currentPlayer === 1) {
-                p1Box.classList.add('active-turn');
-                p2Box.classList.remove('active-turn');
-            } else {
-                p2Box.classList.add('active-turn');
-                p1Box.classList.remove('active-turn');
-            }
-        }
-
-        function declareWinner() {
-            clearInterval(timerInterval);
-            const msg = document.getElementById('winMessage');
-            if (p1Score > p2Score) msg.innerText = "🎉 Player 1 Wins!";
-            else if (p2Score > p1Score) msg.innerText = "🎉 Player 2 Wins!";
-            else msg.innerText = "🤝 It's a Tie!";
-        }
-    </script>
+    // Start Game Directly
+    createBoard();
+  </script>
 </body>
 </html>

@@ -280,7 +280,7 @@
     </div>
 
     <script>
-        const CLIENT_ID = "29865168586-s626phpp4tjakdhkn61kv13geue89toa.apps.googleusercontent.com";
+        const CLIENT_ID = "281176461879-m4evqumqf0kfmme5bmghs3kmov6kjbbu.apps.googleusercontent.com";
         const fruits = ['🍎', '🍌', '🍇', '🍉', '🍓', '🍒', '🍍', '🥝', '🍑', '🥭', '🍋', '🍊', '🍐', '🍏', '🍈', '🥥', '🍅', '🥑', '🍆', '🥔', '🥕', '🌽', '🌶️', '🥒', '🥬', '🥦', '🧄', '🧅', '🍄', '🥜', '🌰', '🍞'];
         
         let currentMode = 'easy';
@@ -334,14 +334,14 @@
             }
         };
 
-        // Redirect Google Login Function for In-App Compatibility
+        // Redirect Google Login Function
         function loginWithGoogleRedirect() {
-            const redirect_uri = window.location.href.split('?')[0].split('#')[0];
+            const redirect_uri = window.location.origin + window.location.pathname;
             const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
                 `client_id=${CLIENT_ID}&` +
                 `redirect_uri=${encodeURIComponent(redirect_uri)}&` +
                 `response_type=token&` +
-                `scope=profile%20email&` +
+                `scope=${encodeURIComponent('https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email')}&` +
                 `prompt=select_account`;
 
             window.location.href = googleAuthUrl;
